@@ -7,7 +7,7 @@ from textwrap import dedent
 import asyncio
 
 parser = ArgumentParser()
-parser.add_argument('--device',type=str,help='Device serial number (default: emulator-5554)')
+parser.add_argument('--device',type=str,help='Device serial number (default: auto-detect)')
 args = parser.parse_args()
 
 instructions=dedent('''
@@ -22,12 +22,11 @@ async def lifespan(app: FastMCP):
 
 mcp=FastMCP(name="Android-MCP",instructions=instructions)
 
-mobile=Mobile(device=args.device if args.device else 'emulator-5554')
-device=mobile.get_device()
+mobile=Mobile(device=args.device)
 
 @mcp.tool(name='Click-Tool',description='Click on a specific cordinate')
 def click_tool(x:int,y:int):
-    device.click(x,y)
+    mobile.get_device().click(x,y)
     return f'Clicked on ({x},{y})'
 
 @mcp.tool('State-Tool',description='Get the state of the device. Optionally includes visual screenshot when use_vision=True.')
@@ -37,38 +36,39 @@ def state_tool(use_vision:bool=False):
 
 @mcp.tool(name='Long-Click-Tool',description='Long click on a specific cordinate')
 def long_click_tool(x:int,y:int):
-    device.long_click(x,y)
+    mobile.get_device().long_click(x,y)
     return f'Long Clicked on ({x},{y})'
 
 @mcp.tool(name='Swipe-Tool',description='Swipe on a specific cordinate')
 def swipe_tool(x1:int,y1:int,x2:int,y2:int):
-    device.swipe(x1,y1,x2,y2)
+    mobile.get_device().swipe(x1,y1,x2,y2)
     return f'Swiped from ({x1},{y1}) to ({x2},{y2})'
 
 @mcp.tool(name='Type-Tool',description='Type on a specific cordinate')
 def type_tool(text:str,x:int,y:int,clear:bool=False):
+    device = mobile.get_device()
     device.set_fastinput_ime(enable=True)
     device.send_keys(text=text,clear=clear)
     return f'Typed "{text}" on ({x},{y})'
 
 @mcp.tool(name='Drag-Tool',description='Drag from location and drop on another location')
 def drag_tool(x1:int,y1:int,x2:int,y2:int):
-    device.drag(x1,y1,x2,y2)
+    mobile.get_device().drag(x1,y1,x2,y2)
     return f'Dragged from ({x1},{y1}) and dropped on ({x2},{y2})'
 
 @mcp.tool(name='Press-Tool',description='Press on specific button on the device')
 def press_tool(button:str):
-    device.press(button)
+    mobile.get_device().press(button)
     return f'Pressed the "{button}" button'
 
 @mcp.tool(name='Notification-Tool',description='Access the notifications seen on the device')
 def notification_tool():
-    device.open_notification()
+    mobile.get_device().open_notification()
     return 'Accessed notification bar'
 
 @mcp.tool(name='Wait-Tool',description='Wait for a specific amount of time')
 def wait_tool(duration:int):
-    device.sleep(duration)
+    mobile.get_device().sleep(duration)
     return f'Waited for {duration} seconds'
 
 @mcp.tool(name='Shell-Tool',description='Execute shell commands on the android device')
