@@ -28,6 +28,13 @@ class Mobile:
         except Exception as e:
             raise RuntimeError(f"Failed to execute shell command: {e}")
 
+    def push_file(self, src: str, dst: str):
+        """Pushes a file from the local machine to the device."""
+        try:
+            self.device.push(src, dst)
+        except Exception as e:
+            raise RuntimeError(f"Failed to push file: {e}")
+
     def get_state(self,use_vision=False,as_bytes:bool=False,as_base64:bool=False):
         try:
             tree = Tree(self)
