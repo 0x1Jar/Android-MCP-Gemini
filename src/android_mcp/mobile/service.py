@@ -7,21 +7,31 @@ import base64
 
 class Mobile:
     def __init__(self,device:str=None):
+        self.device_serial = device
+        self.device = None
         try:
-            self.device = u2.connect(device)
+            self.connect()
+        except Exception:
+            pass
+
+    def connect(self):
+        try:
+            self.device = u2.connect(self.device_serial)
             self.device.info
         except u2.ConnectError as e:
-            raise ConnectionError(f"Failed to connect to device {device}: {e}")
+            raise ConnectionError(f"Failed to connect to device {self.device_serial}: {e}")
         except Exception as e:
-            raise RuntimeError(f"Unexpected error connecting to device {device}: {e}")
+            raise RuntimeError(f"Unexpected error connecting to device {self.device_serial}: {e}")
 
     def get_device(self):
+        if self.device is None:
+            self.connect()
         return self.device
 
     def shell(self, command: str) -> str:
         """Executes a shell command on the device."""
         try:
-            output, exit_code = self.device.shell(command, stream=False)
+            output, exit_code = self.get_device().shell(command, stream=False)
             if exit_code != 0:
                  raise RuntimeError(f"Shell command failed with exit code {exit_code}: {output}")
             return output
@@ -31,7 +41,7 @@ class Mobile:
     def push_file(self, src: str, dst: str):
         """Pushes a file from the local machine to the device."""
         try:
-            self.device.push(src, dst)
+            self.get_device().push(src, dst)
         except Exception as e:
             raise RuntimeError(f"Failed to push file: {e}")
 
@@ -56,7 +66,7 @@ class Mobile:
     
     def get_screenshot(self,scale:float=0.7)->Image.Image:
         try:
-            screenshot=self.device.screenshot()
+            screenshot=self.get_device().screenshot()
             if screenshot is None:
                 raise ValueError("Screenshot capture returned None.")
             size=(screenshot.width*scale, screenshot.height*scale)
