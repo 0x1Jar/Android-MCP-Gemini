@@ -71,6 +71,15 @@ def wait_tool(duration:int):
     device.sleep(duration)
     return f'Waited for {duration} seconds'
 
+@mcp.tool(name='Shell-Tool',description='Execute shell commands on the android device')
+def shell_tool(command:str):
+    return mobile.shell(command)
+
+@mcp.tool(name='Push-File-Tool',description='Push a file from local to device')
+def push_file_tool(src:str, dst:str):
+    mobile.push_file(src, dst)
+    return f'Pushed {src} to {dst}'
+
 def main():
     mcp.run()
 
