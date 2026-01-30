@@ -18,6 +18,16 @@ class Mobile:
     def get_device(self):
         return self.device
 
+    def shell(self, command: str) -> str:
+        """Executes a shell command on the device."""
+        try:
+            output, exit_code = self.device.shell(command, stream=False)
+            if exit_code != 0:
+                 raise RuntimeError(f"Shell command failed with exit code {exit_code}: {output}")
+            return output
+        except Exception as e:
+            raise RuntimeError(f"Failed to execute shell command: {e}")
+
     def get_state(self,use_vision=False,as_bytes:bool=False,as_base64:bool=False):
         try:
             tree = Tree(self)
