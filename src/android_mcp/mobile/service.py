@@ -31,7 +31,7 @@ class Mobile:
     def shell(self, command: str) -> str:
         """Executes a shell command on the device."""
         try:
-            output, exit_code = self.get_device().shell(command, stream=False)
+            output, exit_code = self.get_device().shell(command)
             if exit_code != 0:
                  raise RuntimeError(f"Shell command failed with exit code {exit_code}: {output}")
             return output
