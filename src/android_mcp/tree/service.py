@@ -19,7 +19,7 @@ class Tree:
         self.mobile = mobile
 
     def get_element_tree(self)->'Element':
-        tree_string = self.mobile.device.dump_hierarchy()
+        tree_string = self.mobile.get_device().dump_hierarchy()
         logger.debug(tree_string)
         return ElementTree.fromstring(tree_string)
     
